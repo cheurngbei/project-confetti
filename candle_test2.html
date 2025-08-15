@@ -3,85 +3,419 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Birthday Cake with Blowable Candles</title>
+  <title>Happy 23rd Birthday!</title>
   <style>
-    body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: #ffe6e6; margin: 0; }
-    .cake { position: relative; width: 400px; height: 200px; background: #d2691e; border-radius: 20px; box-shadow: inset 0 -20px 0 #a0522d; margin-bottom: 40px; }
-    .candle { position: absolute; width: 10px; height: 40px; background: #fffacd; top: -40px; }
-    .flame { width: 10px; height: 20px; background: radial-gradient(circle, yellow 0%, orange 60%, rgba(255,165,0,0) 80%); border-radius: 50%; animation: flicker .15s infinite alternate; }
-    @keyframes flicker { from { transform: scaleY(1); } to { transform: scaleY(1.1); } }
-    .present, .flowers, .letter { width: 100px; height: 100px; margin: 20px; display: inline-block; background-size: cover; cursor: pointer; }
-    .present { background-image: url('https://i.imgur.com/w1XQn5B.png'); }
-    .flowers { background-image: url('https://i.imgur.com/1tAdVf2.png'); }
-    .letter { background-image: url('https://i.imgur.com/zX5I7rR.png'); }
-    #letterModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; align-items: center; justify-content: center; padding: 20px; }
-    #letterModalContent { background: white; color: black; padding: 20px; border-radius: 10px; max-width: 500px; }
-    #letterModalContent img { max-width: 100%; height: auto; display: block; }
+    :root{
+      --bg:#0b0f1a;--card:#121827;--accent:#ffd166;--accent-2:#ff9f1c;--text:#e6edf7;--muted:#8b9bb0;
+      --ok:#3ddc97;--warn:#ff595e;--cake:#8b4513;--frosting:#f8f8ff;--pink:#ffb6c1;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1000px 600px at 50% -100px, #142038 0%, var(--bg) 60%);
+      color:var(--text); display:grid; place-items:center; padding:12px; overflow-x:auto;
+    }
+    .app{width:min(100%, 100vw); background:var(--card); border-radius:24px; padding:16px; box-shadow: 0 10px 40px rgba(0,0,0,.35);}
+    header{text-align:center; margin-bottom:16px}
+    header h1{font-size:clamp(18px, 4vw, 28px); margin:0; letter-spacing:.3px; background: linear-gradient(45deg, var(--accent), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;}
+    header .subtitle{color:var(--muted); font-size:clamp(12px, 2.5vw, 16px); margin-top:4px}
+
+    .cake-container{position:relative; display:grid; place-items:center; padding:20px; border-radius:20px; background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.005)); min-height:400px}
+
+    /* Cake Base */
+    .cake{position:relative; z-index:1; display:flex; flex-direction:column-reverse; align-items:center}
+    .cake-layer{border-radius:20px; position:relative}
+    .cake-bottom{width:280px; height:60px; background: linear-gradient(180deg, #d2691e, #8b4513); box-shadow: 0 8px 20px rgba(0,0,0,.3)}
+    .cake-middle{width:240px; height:50px; background: linear-gradient(180deg, #daa520, #b8860b); box-shadow: 0 6px 15px rgba(0,0,0,.25); margin-bottom:-10px}
+    .cake-top{width:200px; height:40px; background: linear-gradient(180deg, var(--frosting), #f0f0f0); box-shadow: 0 4px 12px rgba(0,0,0,.2); margin-bottom:-8px}
+
+    /* Frosting decorations */
+    .frosting-swirl{position:absolute; width:15px; height:15px; background:var(--pink); border-radius:50%; box-shadow: 0 0 8px rgba(255,182,193,.5)}
+    .swirl-1{top:-5px; left:20px}
+    .swirl-2{top:-5px; right:20px}
+    .swirl-3{top:-5px; left:50%; transform:translateX(-50%)}
+    .swirl-4{bottom:-5px; left:30px}
+    .swirl-5{bottom:-5px; right:30px}
+
+    /* Candle positioning */
+    .candles-container{position:absolute; top:-120px; left:50%; transform:translateX(-50%); width:200px; display:grid; z-index:10}
+    
+    /* Top row - 8 candles */
+    .candles-top{display:flex; justify-content:space-between; align-items:end; margin-bottom:15px; padding:0 10px}
+    
+    /* Middle row - 7 candles */
+    .candles-middle{display:flex; justify-content:space-between; align-items:end; margin-bottom:15px; padding:0 20px}
+    
+    /* Bottom row - 8 candles */
+    .candles-bottom{display:flex; justify-content:space-between; align-items:end; padding:0 15px}
+
+    /* Individual candle */
+    .candle{position:relative; width:12px; height:35px; background:#f0e7da; border-radius:4px; box-shadow: inset 0 -8px 12px rgba(0,0,0,.15);}  
+    .wick{position:absolute; top:-8px; left:50%; transform:translateX(-50%); width:2px; height:6px; background:#333; border-radius:2px}
+
+    .flame{position:relative; top:-18px; left:50%; transform:translateX(-50%); width:8px; height:12px; background: radial-gradient(50% 65% at 50% 55%, #fff7b0 0%, #ffd166 35%, #ff9f1c 70%, rgba(255,159,28,.0) 72%);
+      border-radius:50% 50% 50% 50%/65% 65% 35% 35%; filter: drop-shadow(0 0 4px #ffcf6e);
+      animation: flicker .18s infinite alternate ease-in-out, sway 2.8s infinite ease-in-out;
+      transform-origin: 50% 100%; opacity:1; pointer-events:none;
+    }
+    @keyframes flicker{from{transform:translateX(-50%) scaleY(1)} to{transform:translateX(-50%) scaleY(1.1)}}
+    @keyframes sway{0%{transform:translateX(-50%) rotate(-1deg)} 50%{transform:translateX(-50%) rotate(1deg)} 100%{transform:translateX(-50%) rotate(-1deg)}}
+
+    .smoke{position:absolute; top:-25px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), rgba(255,255,255,0)); opacity:0; pointer-events:none}
+    .smoke.on{animation: smoke 2s ease-out forwards}
+    @keyframes smoke{
+      0%{opacity:.0; transform:translate(-50%,0) scale(.5)}
+      15%{opacity:.6}
+      100%{opacity:0; transform:translate(-50%,-40px) scale(1.8)}
+    }
+
+    /* Controls */
+    .controls{display:grid; grid-template-columns: 1fr; gap:10px; margin-top:16px}
+    button{appearance:none; border:none; padding:12px 16px; border-radius:16px; background:linear-gradient(180deg, #1e293b, #0f172a); color:#e6edf7; font-weight:600; letter-spacing:.3px; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,.25); width:100%}
+    button:active{transform:translateY(1px)}
+    button.birthday{background:linear-gradient(180deg, var(--accent-2), var(--accent)); color:#000}
+    .small{font-size:11px; color:var(--muted)}
+    .row{display:grid; grid-template-columns: 1fr auto; align-items:center; gap:10px}
+
+    .meter{height:8px; width:100%; border-radius:999px; background:#0e1626; overflow:hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.04)}
+    .meter > .fill{height:100%; width:2%; background:linear-gradient(90deg, #3b82f6, #06b6d4);}
+
+    .flex{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+    .pill{padding:4px 8px; border-radius:999px; background:#0e1626; color:var(--muted); font-size:10px}
+
+    .relight{position:absolute; inset:0; display:grid; place-items:center; background:rgba(0,0,0,.65); border-radius:20px; opacity:0; pointer-events:none; transition:opacity .3s; z-index:100}
+    .relight.show{opacity:1; pointer-events:auto}
+    .relight button{width:auto}
+    .relight .message{text-align:center; margin-bottom:20px; font-size:clamp(16px, 3vw, 24px); color:var(--accent)}
+
+    .status-row{display:flex; align-items:center; gap:8px; justify-content:center; margin-bottom:12px}
+    .dot{width:8px; height:8px; border-radius:50%; background:var(--warn)}
+    .dot.on{background:var(--ok); box-shadow:0 0 8px var(--ok)}
+
+    footer{margin-top:12px; text-align:center; color:var(--muted); font-size:10px}
+
+    @media (max-width: 400px) {
+      .cake-bottom{width:240px; height:50px}
+      .cake-middle{width:200px; height:40px}
+      .cake-top{width:160px; height:32px}
+      .candles-container{width:160px; top:-100px}
+      .candle{width:10px; height:28px}
+      .candles-top{padding:0 5px; margin-bottom:12px}
+      .candles-middle{padding:0 15px; margin-bottom:12px}
+      .candles-bottom{padding:0 10px}
+    }
   </style>
 </head>
 <body>
-  <div class="cake" id="cake"></div>
-  <div>
-    <div class="letter" id="letter"></div>
-    <div class="present"></div>
-    <div class="flowers"></div>
-  </div>
+  <div class="app">
+    <header>
+      <h1>🎂 Happy 23rd Birthday! 🎂</h1>
+      <div class="subtitle">Make a wish and blow out the candles!</div>
+    </header>
 
-  <div id="letterModal">
-    <div id="letterModalContent">
-      <img id="letterImage" src="letter.jpeg" alt="Letter" />
-      <button onclick="document.getElementById('letterModal').style.display='none'">Close</button>
+    <div class="cake-container">
+      <!-- Birthday Cake -->
+      <div class="cake">
+        <div class="cake-layer cake-bottom">
+          <div class="frosting-swirl swirl-4"></div>
+          <div class="frosting-swirl swirl-5"></div>
+        </div>
+        <div class="cake-layer cake-middle"></div>
+        <div class="cake-layer cake-top">
+          <div class="frosting-swirl swirl-1"></div>
+          <div class="frosting-swirl swirl-2"></div>
+          <div class="frosting-swirl swirl-3"></div>
+        </div>
+      </div>
+
+      <!-- 23 Candles arranged in 3 rows -->
+      <div class="candles-container">
+        <!-- Top row: 8 candles -->
+        <div class="candles-top">
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+        </div>
+        
+        <!-- Middle row: 7 candles -->
+        <div class="candles-middle">
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+        </div>
+        
+        <!-- Bottom row: 8 candles -->
+        <div class="candles-bottom">
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+          <div class="candle"><div class="wick"></div><div class="flame"></div><div class="smoke"></div></div>
+        </div>
+      </div>
+
+      <!-- Overlay for when candles are blown out -->
+      <div id="overlay" class="relight">
+        <div>
+          <div class="message">🎉 Happy Birthday! 🎉</div>
+          <button id="relightBtn" class="birthday">Light the Candles Again</button>
+        </div>
+      </div>
     </div>
+
+    <div class="controls">
+      <div class="status-row">
+        <div id="status" class="dot" title="Microphone status"></div>
+        <span id="micLabel" class="small">Microphone: Off</span>
+      </div>
+
+      <button id="startBtn">🎤 Enable Microphone to Blow Candles</button>
+
+      <div class="row">
+        <div class="meter"><div id="levelFill" class="fill"></div></div>
+        <span class="pill" id="levelPill">0</span>
+      </div>
+
+      <label class="small" for="sens">Sensitivity (lower = easier to blow out)</label>
+      <input id="sens" type="range" min="2" max="20" value="6" />
+
+      <div class="flex small">
+        <span>💡 Tip: Blow gently on your phone's microphone. Try adjusting sensitivity if needed.</span>
+      </div>
+    </div>
+
+    <footer>
+      Audio processing happens on your device only. No data is sent anywhere.
+    </footer>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script>
-    const cake = document.getElementById('cake');
-    const flames = [];
+<script>
+(function(){
+  const startBtn = document.getElementById('startBtn');
+  const relightBtn = document.getElementById('relightBtn');
+  const overlay = document.getElementById('overlay');
+  const statusDot = document.getElementById('status');
+  const levelFill = document.getElementById('levelFill');
+  const levelPill = document.getElementById('levelPill');
+  const sens = document.getElementById('sens');
+  const micLabel = document.getElementById('micLabel');
 
-    for (let i = 0; i < 23; i++) {
-      const candle = document.createElement('div');
-      candle.className = 'candle';
-      candle.style.left = (10 + i * (380 / 22)) + 'px';
-      const flame = document.createElement('div');
-      flame.className = 'flame';
-      candle.appendChild(flame);
-      flames.push(flame);
-      cake.appendChild(candle);
-    }
+  // Get all flames and smoke elements
+  const flames = document.querySelectorAll('.flame');
+  const smokes = document.querySelectorAll('.smoke');
 
-    // Microphone blow detection
-    async function startMic() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const source = audioCtx.createMediaStreamSource(stream);
-        const analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 256;
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
-        source.connect(analyser);
+  let audioCtx, analyser, source, micStream;
+  let freqBuf, timeBuf;
+  let rafId;
+  let baselineHF = 0;
+  let quenched = false;
+  let armed = true;
+  const ARM_COOLDOWN_MS = 1000;
 
-        function detectBlow() {
-          analyser.getByteFrequencyData(dataArray);
-          let avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
-          if (avg > 60) { // sensitivity threshold
-            flames.forEach(f => f.style.display = 'none');
-            confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } });
-          }
-          requestAnimationFrame(detectBlow);
-        }
-        detectBlow();
-      } catch (err) {
-        alert('Microphone access denied or not supported.');
-      }
-    }
+  function setMicUI(on){
+    statusDot.classList.toggle('on', !!on);
+    micLabel.textContent = on ? 'Microphone: On' : 'Microphone: Off';
+    startBtn.textContent = on ? '🎤 Microphone Enabled' : '🎤 Enable Microphone to Blow Candles';
+  }
 
-    startMic();
+  function relight(){
+    quenched = false;
+    overlay.classList.remove('show');
+    
+    // Hide all smoke and show all flames
+    smokes.forEach(smoke => smoke.classList.remove('on'));
+    flames.forEach(flame => flame.style.opacity = 1);
+    
+    armed = true;
+  }
 
-    document.getElementById('letter').addEventListener('click', () => {
-      document.getElementById('letterImage').src = 'YOUR_LETTER_IMAGE_URL_HERE';
-      document.getElementById('letterModal').style.display = 'flex';
+  function blowOut(){
+    if(quenched) return;
+    quenched = true;
+    
+    // Hide all flames with staggered timing for a nice effect
+    flames.forEach((flame, index) => {
+      setTimeout(() => {
+        flame.style.opacity = 0;
+      }, index * 50); // 50ms delay between each candle
     });
-  </script>
+    
+    // Show smoke from all candles
+    setTimeout(() => {
+      smokes.forEach((smoke, index) => {
+        setTimeout(() => {
+          smoke.classList.remove('on');
+          void smoke.offsetWidth; // force reflow
+          smoke.classList.add('on');
+        }, index * 40);
+      });
+    }, 200);
+    
+    // Show birthday message
+    setTimeout(() => {
+      overlay.classList.add('show');
+    }, 800);
+    
+    armed = false;
+    setTimeout(() => armed = true, ARM_COOLDOWN_MS);
+  }
+
+  async function initAudio(){
+    try{
+      // Check if getUserMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Your browser does not support microphone access. Please use Chrome, Safari, or Firefox.');
+      }
+
+      if(!audioCtx){
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)({latencyHint:'interactive'});
+      }
+      if(audioCtx.state === 'suspended') await audioCtx.resume();
+
+      // Request microphone with more permissive settings for mobile
+      micStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false
+        },
+        video: false
+      });
+
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.85;
+
+      source = audioCtx.createMediaStreamSource(micStream);
+      source.connect(analyser);
+
+      freqBuf = new Uint8Array(analyser.frequencyBinCount);
+      timeBuf = new Uint8Array(analyser.fftSize);
+
+      // Baseline calibration
+      baselineHF = 0;
+      const CALIB_MS = 400;
+      const t0 = performance.now();
+      while(performance.now() - t0 < CALIB_MS){
+        analyser.getByteFrequencyData(freqBuf);
+        baselineHF += hfEnergy(freqBuf);
+      }
+      baselineHF = baselineHF / Math.max(1, Math.round(CALIB_MS/16));
+
+      animate();
+      setMicUI(true);
+    }catch(err){
+      console.error('Microphone error:', err);
+      let errorMsg = 'Microphone access failed. ';
+      
+      if (err.name === 'NotAllowedError') {
+        errorMsg += 'Please allow microphone access in your browser settings and try again.';
+      } else if (err.name === 'NotFoundError') {
+        errorMsg += 'No microphone found on your device.';
+      } else if (err.name === 'NotSupportedError') {
+        errorMsg += 'Your browser does not support microphone access.';
+      } else {
+        errorMsg += 'Please check your microphone permissions and try again.';
+      }
+      
+      alert(errorMsg);
+      setMicUI(false);
+    }
+  }
+
+  function hfEnergy(buf){
+    const sr = audioCtx ? audioCtx.sampleRate : 44100;
+    const binHz = sr / analyser.fftSize;
+    const startHz = 1800;
+    const startBin = Math.max(0, Math.floor(startHz / binHz));
+    let sum = 0;
+    for(let i=startBin; i<buf.length; i++) sum += buf[i];
+    return sum / (buf.length - startBin);
+  }
+
+  function levelRMS(buf){
+    let sum = 0;
+    for(let i=0;i<buf.length;i++){
+      const v = (buf[i]-128)/128; sum += v*v;
+    }
+    return Math.sqrt(sum / buf.length);
+  }
+
+  function animate(){
+    analyser.getByteFrequencyData(freqBuf);
+    analyser.getByteTimeDomainData(timeBuf);
+
+    const hf = hfEnergy(freqBuf);
+    const rms = levelRMS(timeBuf);
+
+    // UI meter
+    const meterPct = Math.min(100, Math.round(rms*220));
+    levelFill.style.width = meterPct+"%";
+    levelPill.textContent = String(meterPct);
+
+    // Blow detection
+    const factor = Number(sens.value);
+    const threshold = baselineHF + factor * 2.5;
+
+    if(armed && !quenched && hf > threshold){
+      sustained(hf, threshold, 250).then(hit => { 
+        if(hit) blowOut(); 
+      });
+    }
+
+    rafId = requestAnimationFrame(animate);
+  }
+
+  function sustained(currentHF, threshold, ms){
+    const deadline = performance.now() + ms;
+    return new Promise(resolve => {
+      function check(){
+        if(performance.now() >= deadline) return resolve(true);
+        analyser.getByteFrequencyData(freqBuf);
+        const hf = hfEnergy(freqBuf);
+        if(hf < threshold){ resolve(false); return; }
+        requestAnimationFrame(check);
+      }
+      requestAnimationFrame(check);
+    });
+  }
+
+  startBtn.addEventListener('click', initAudio);
+  relightBtn.addEventListener('click', relight);
+
+  // Allow tapping the cake to relight
+  document.querySelector('.cake-container').addEventListener('click', ()=>{
+    if(quenched) relight();
+  });
+
+  // Pause audio when page is hidden
+  document.addEventListener('visibilitychange', ()=>{
+    if(!audioCtx) return;
+    if(document.hidden) audioCtx.suspend(); else audioCtx.resume();
+  });
+
+  // Clean up
+  window.addEventListener('beforeunload', ()=>{
+    if(rafId) cancelAnimationFrame(rafId);
+    if(micStream){
+      micStream.getTracks().forEach(t=>t.stop());
+    }
+    if(audioCtx) audioCtx.close();
+  });
+})();
+</script>
 </body>
 </html>
