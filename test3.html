@@ -297,7 +297,36 @@
     startBtn.textContent = on ? '🎤 Microphone Enabled' : '🎤 Enable Microphone to Blow Candles';
   }
 
-  function createConfetti(){
+  function blowOut(){
+    if(quenched) return;
+    quenched = true;
+    
+    // Create confetti effect
+    createConfetti();
+    
+    // Hide all flames with staggered timing for a nice effect
+    flames.forEach((flame, index) => {
+      setTimeout(() => {
+        flame.style.opacity = 0;
+      }, index * 50); // 50ms delay between each candle
+    });
+    
+    // Show smoke from all candles
+    setTimeout(() => {
+      smokes.forEach((smoke, index) => {
+        setTimeout(() => {
+          smoke.classList.remove('on');
+          void smoke.offsetWidth; // force reflow
+          smoke.classList.add('on');
+        }, index * 40);
+      });
+    }, 200);
+    
+    armed = false;
+    setTimeout(() => armed = true, ARM_COOLDOWN_MS);
+  }
+
+  function relight(){
     const colors = ['confetti-1', 'confetti-2', 'confetti-3', 'confetti-4', 'confetti-5', 'confetti-6'];
     const confettiCount = 50;
     
