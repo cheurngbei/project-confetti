@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blow Out the Candle</title>
+  <style>
+    :root{
+      --bg:#0b0f1a;--card:#121827;--accent:#ffd166;--accent-2:#ff9f1c;--text:#e6edf7;--muted:#8b9bb0;
+      --ok:#3ddc97;--warn:#ff595e;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1000px 600px at 50% -100px, #142038 0%, var(--bg) 60%);
+      color:var(--text); display:grid; place-items:center; padding:24px;
+    }
+    .app{width:min(720px, 100%); background:var(--card); border-radius:24px; padding:24px; box-shadow: 0 10px 40px rgba(0,0,0,.35);}
+    header{display:flex; align-items:center; gap:12px; margin-bottom:16px}
+    header h1{font-size:clamp(20px, 3.5vw, 28px); margin:0; letter-spacing:.3px}
+    header .dot{width:10px; height:10px; border-radius:50%; background:var(--warn); box-shadow:0 0 12px var(--warn)}
+    header .dot.on{background:var(--ok); box-shadow:0 0 12px var(--ok)}
+
+    .stage{position:relative; display:grid; place-items:center; padding:24px; border-radius:20px; background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.005));}
+
+    /* Candle */
+    .candle{position:relative; width:80px; height:160px; background:#f0e7da; border-radius:20px; box-shadow: inset 0 -20px 30px rgba(0,0,0,.15);}  
+    .wick{position:absolute; top:-18px; left:50%; transform:translateX(-50%); width:6px; height:22px; background:#333; border-radius:4px}
+
+    .flame{position:absolute; top:-55px; left:50%; transform:translateX(-50%); width:34px; height:54px; background: radial-gradient(50% 65% at 50% 55%, #fff7b0 0%, #ffd166 35%, #ff9f1c 70%, rgba(255,159,28,.0) 72%);
+      border-radius:50% 50% 50% 50%/65% 65% 35% 35%; filter: drop-shadow(0 0 16px #ffcf6e) drop-shadow(0 0 36px #ffcf6e);
+      animation: flicker .14s infinite alternate ease-in-out, sway 2.2s infinite ease-in-out;
+      transform-origin: 50% 100%; opacity:1; pointer-events:none;
+    }
+    @keyframes flicker{from{transform:translateX(-50%) scaleY(1)} to{transform:translateX(-50%) scaleY(1.07)}}
+    @keyframes sway{0%{filter:drop-shadow(0 0 10px #ffcf6e) drop-shadow(0 0 30px #ffcf6e); transform:translateX(-50%) rotate(-2deg)} 50%{transform:translateX(-50%) rotate(2deg)} 100%{transform:translateX(-50%) rotate(-2deg)}}
+
+    .smoke{position:absolute; top:-70px; left:50%; transform:translateX(-50%); width:8px; height:8px; border-radius:50%; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), rgba(255,255,255,0)); opacity:0; pointer-events:none}
+    .smoke.on{animation: smoke 1.8s ease-out forwards}
+    @keyframes smoke{
+      0%{opacity:.0; transform:translate(-50%,0) scale(.6)}
+      10%{opacity:.45}
+      100%{opacity:0; transform:translate(-50%,-90px) scale(1.6)}
+    }
+
+    /* Controls */
+    .controls{display:grid; grid-template-columns: 1fr; gap:12px; margin-top:18px}
+    button, input[type="range"]{width:100%}
+    button{appearance:none; border:none; padding:14px 16px; border-radius:16px; background:linear-gradient(180deg, #1e293b, #0f172a); color:#e6edf7; font-weight:600; letter-spacing:.3px; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,.25)}
+    button:active{transform:translateY(1px)}
+    .small{font-size:12px; color:var(--muted)}
+    .row{display:grid; grid-template-columns: 1fr auto; align-items:center; gap:12px}
+
+    .meter{height:10px; width:100%; border-radius:999px; background:#0e1626; overflow:hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.04)}
+    .meter > .fill{height:100%; width:2%; background:linear-gradient(90deg, #3b82f6, #06b6d4);}
+
+    .flex{display:flex; align-items:center; gap:12px}
+    .pill{padding:6px 10px; border-radius:999px; background:#0e1626; color:var(--muted); font-size:12px}
+
+    .relight{position:absolute; inset:0; display:grid; place-items:center; background:rgba(0,0,0,.35); border-radius:20px; opacity:0; pointer-events:none; transition:opacity .2s}
+    .relight.show{opacity:1; pointer-events:auto}
+    .relight button{width:auto}
+
+    footer{margin-top:14px; display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:12px}
+    a { color: var(--accent); text-decoration: none }
+    a:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div id="status" class="dot" title="Microphone status"></div>
+      <h1>Blow Out the Candle <span style="color:var(--muted); font-weight:500">— speak or blow near your phone</span></h1>
+    </header>
+
+    <div class="stage">
+      <div class="candle" aria-label="candle">
+        <div class="wick"></div>
+        <div id="flame" class="flame" role="img" aria-label="flame"></div>
+        <div id="smoke" class="smoke"></div>
+      </div>
+
+      <div id="overlay" class="relight" aria-hidden="true">
+        <button id="relightBtn">Relight Candle</button>
+      </div>
+    </div>
+
+    <div class="controls" role="region" aria-label="controls">
+      <div class="row">
+        <button id="startBtn">Enable Microphone</button>
+        <span class="pill" id="micLabel">mic: off</span>
+      </div>
+
+      <div class="row">
+        <div class="meter" aria-label="input level"><div id="levelFill" class="fill"></div></div>
+        <span class="pill" id="levelPill">0</span>
+      </div>
+
+      <label class="small" for="sens">Sensitivity (lower = easier to blow out)</label>
+      <input id="sens" type="range" min="2" max="20" value="8" />
+
+      <div class="flex small">
+        <span>Tip: iOS/Safari requires tapping <strong>Enable Microphone</strong> first. Try moving the slider if it feels too sensitive or not sensitive enough.</span>
+      </div>
+    </div>
+
+    <footer>
+      <div>Audio stays on-device; no data is sent anywhere.</div>
+      <div><a href="#" id="how">How it works</a></div>
+    </footer>
+  </div>
+
+<script>
+(function(){
+  const startBtn = document.getElementById('startBtn');
+  const relightBtn = document.getElementById('relightBtn');
+  const overlay = document.getElementById('overlay');
+  const flame = document.getElementById('flame');
+  const smoke = document.getElementById('smoke');
+  const statusDot = document.getElementById('status');
+  const levelFill = document.getElementById('levelFill');
+  const levelPill = document.getElementById('levelPill');
+  const sens = document.getElementById('sens');
+  const micLabel = document.getElementById('micLabel');
+  const how = document.getElementById('how');
+
+  let audioCtx, analyser, source, micStream;
+  let freqBuf, timeBuf;
+  let rafId;
+  let baselineHF = 0;
+  let quenched = false;
+  let armed = true; // debounce so it doesn't retrigger immediately
+  const ARM_COOLDOWN_MS = 800; // after an event, wait before next
+
+  function setMicUI(on){
+    statusDot.classList.toggle('on', !!on);
+    micLabel.textContent = on ? 'mic: on' : 'mic: off';
+    startBtn.textContent = on ? 'Microphone Enabled' : 'Enable Microphone';
+  }
+
+  function relight(){
+    quenched = false;
+    overlay.classList.remove('show');
+    smoke.classList.remove('on');
+    flame.style.opacity = 1;
+    armed = true;
+  }
+
+  function blowOut(){
+    if(quenched) return;
+    quenched = true;
+    flame.style.opacity = 0; // hide flame
+    smoke.classList.remove('on');
+    // restart smoke animation by forcing reflow
+    void smoke.offsetWidth; 
+    smoke.classList.add('on');
+    overlay.classList.add('show');
+    armed = false;
+    setTimeout(()=> armed = true, ARM_COOLDOWN_MS);
+  }
+
+  async function initAudio(){
+    try{
+      if(!audioCtx){
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)({latencyHint:'interactive'});
+      }
+      if(audioCtx.state === 'suspended') await audioCtx.resume();
+
+      micStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+          channelCount: 1,
+          sampleRate: 44100
+        },
+        video: false
+      });
+
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048; // 1024 bins usable
+      analyser.smoothingTimeConstant = 0.85; // smoother level
+
+      source = audioCtx.createMediaStreamSource(micStream);
+      source.connect(analyser);
+
+      freqBuf = new Uint8Array(analyser.frequencyBinCount);
+      timeBuf = new Uint8Array(analyser.fftSize);
+
+      // quick baseline calibration for high-frequency energy
+      baselineHF = 0;
+      const CALIB_MS = 400;
+      const t0 = performance.now();
+      while(performance.now() - t0 < CALIB_MS){
+        analyser.getByteFrequencyData(freqBuf);
+        baselineHF += hfEnergy(freqBuf);
+      }
+      baselineHF = baselineHF / Math.max(1, Math.round(CALIB_MS/16));
+
+      animate();
+      setMicUI(true);
+    }catch(err){
+      console.error(err);
+      alert('Microphone access failed. Please allow mic permissions.');
+      setMicUI(false);
+    }
+  }
+
+  function hfEnergy(buf){
+    // Sum energy from ~2kHz upward — blowing is broadband, hissy
+    // Map bin index to frequency: index * (sampleRate/2) / (N/2) ≈ index * (audioCtx.sampleRate / analyser.fftSize)
+    const sr = audioCtx ? audioCtx.sampleRate : 44100;
+    const binHz = sr / analyser.fftSize; // frequency per bin
+    const startHz = 1800; // start of high band
+    const startBin = Math.max(0, Math.floor(startHz / binHz));
+    let sum = 0;
+    for(let i=startBin; i<buf.length; i++) sum += buf[i];
+    return sum / (buf.length - startBin);
+  }
+
+  function levelRMS(buf){
+    // quick RMS from time-domain for a nice level meter (0..1)
+    let sum = 0;
+    for(let i=0;i<buf.length;i++){
+      const v = (buf[i]-128)/128; sum += v*v;
+    }
+    return Math.sqrt(sum / buf.length);
+  }
+
+  function animate(){
+    analyser.getByteFrequencyData(freqBuf);
+    analyser.getByteTimeDomainData(timeBuf);
+
+    const hf = hfEnergy(freqBuf);
+    const rms = levelRMS(timeBuf);
+
+    // UI meter (scale to percentage)
+    const meterPct = Math.min(100, Math.round(rms*220));
+    levelFill.style.width = meterPct+"%";
+    levelPill.textContent = String(meterPct);
+
+    // Sensitivity logic: threshold = baseline + factor
+    const factor = Number(sens.value); // 2..20
+    const threshold = baselineHF + factor * 2.5; // tweakable slope
+
+    if(armed && !quenched && hf > threshold){
+      // Require sustained blast for ~200ms to avoid random spikes
+      sustained(hf, threshold, 200).then(hit => { if(hit) blowOut(); });
+    }
+
+    rafId = requestAnimationFrame(animate);
+  }
+
+  function sustained(currentHF, threshold, ms){
+    const deadline = performance.now() + ms;
+    return new Promise(resolve => {
+      function check(){
+        if(performance.now() >= deadline) return resolve(true);
+        analyser.getByteFrequencyData(freqBuf);
+        const hf = hfEnergy(freqBuf);
+        if(hf < threshold){ resolve(false); return; }
+        requestAnimationFrame(check);
+      }
+      requestAnimationFrame(check);
+    });
+  }
+
+  startBtn.addEventListener('click', initAudio);
+  relightBtn.addEventListener('click', relight);
+
+  how.addEventListener('click', (e)=>{
+    e.preventDefault();
+    alert('We use the Web Audio API to read the microphone, estimate high-frequency noise (the hiss when you blow), and when it exceeds a sensitivity threshold for ~200ms, we hide the flame and show smoke. Audio never leaves your device.');
+  });
+
+  // If page is hidden, pause the AudioContext to save battery
+  document.addEventListener('visibilitychange', ()=>{
+    if(!audioCtx) return;
+    if(document.hidden) audioCtx.suspend(); else audioCtx.resume();
+  });
+
+  // Allow tapping the candle to relight too
+  document.querySelector('.stage').addEventListener('click', ()=>{
+    if(quenched) relight();
+  });
+
+  // Clean up on unload
+  window.addEventListener('beforeunload', ()=>{
+    if(rafId) cancelAnimationFrame(rafId);
+    if(micStream){
+      micStream.getTracks().forEach(t=>t.stop());
+    }
+    if(audioCtx) audioCtx.close();
+  });
+})();
+</script>
+</body>
+</html>
