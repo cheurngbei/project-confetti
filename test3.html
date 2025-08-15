@@ -21,25 +21,23 @@
     header h1{font-size:clamp(18px, 4vw, 28px); margin:0; letter-spacing:.3px; background: linear-gradient(45deg, var(--accent), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;}
     header .subtitle{color:var(--muted); font-size:clamp(12px, 2.5vw, 16px); margin-top:4px}
 
-    .cake-container{position:relative; display:grid; place-items:center; padding:20px 20px 40px 20px; min-height:350px; margin-top:-20px}
+    .cake-container{position:relative; display:grid; place-items:center; padding:20px 20px 40px 20px; min-height:400px; margin-top:-20px}
 
     /* Cake Base */
     .cake{position:relative; z-index:1; display:flex; flex-direction:column-reverse; align-items:center}
     .cake-layer{border-radius:20px; position:relative}
-    .cake-bottom{width:280px; height:60px; background: linear-gradient(180deg, #d2691e, #8b4513); box-shadow: 0 8px 20px rgba(0,0,0,.3)}
-    .cake-middle{width:240px; height:50px; background: linear-gradient(180deg, #daa520, #b8860b); box-shadow: 0 6px 15px rgba(0,0,0,.25); margin-bottom:-10px}
-    .cake-top{width:200px; height:40px; background: linear-gradient(180deg, var(--frosting), #f0f0f0); box-shadow: 0 4px 12px rgba(0,0,0,.2); margin-bottom:-8px}
+    .cake-bottom{width:280px; height:90px; background: linear-gradient(180deg, #d2691e, #8b4513); box-shadow: 0 8px 20px rgba(0,0,0,.3)}
+    .cake-middle{width:240px; height:75px; background: linear-gradient(180deg, #daa520, #b8860b); box-shadow: 0 6px 15px rgba(0,0,0,.25); margin-bottom:-15px}
+    .cake-top{width:200px; height:60px; background: linear-gradient(180deg, var(--frosting), #f0f0f0); box-shadow: 0 4px 12px rgba(0,0,0,.2); margin-bottom:-12px}
 
     /* Frosting decorations */
     .frosting-swirl{position:absolute; width:15px; height:15px; background:var(--pink); border-radius:50%; box-shadow: 0 0 8px rgba(255,182,193,.5)}
     .swirl-1{top:-5px; left:20px}
     .swirl-2{top:-5px; right:20px}
     .swirl-3{top:-5px; left:50%; transform:translateX(-50%)}
-    .swirl-4{bottom:-5px; left:30px}
-    .swirl-5{bottom:-5px; right:30px}
 
     /* Candle positioning */
-    .candles-container{position:absolute; top:120px; left:50%; transform:translateX(-50%); width:200px; display:grid; z-index:10}
+    .candles-container{position:absolute; top:90px; left:50%; transform:translateX(-50%); width:200px; display:grid; z-index:10}
     
     /* Top row - 6 candles */
     .candles-top{display:flex; justify-content:space-between; align-items:end; margin-bottom:15px; padding:0 30px}
@@ -104,7 +102,7 @@
     .letter-item:hover{transform:translateY(-5px)}
     
     .letter{background:none; border:none; padding:0; cursor:pointer}
-    .letter-image-item{width:120px; height:120px; background-image: url('letter.jpg'); background-size:cover; background-position:center; border-radius:12px}
+    .letter-image-item{width:120px; height:120px; background-image: url('letterout.jpg'); background-size:cover; background-position:center; border-radius:12px}
     
     /* Letter overlay */
     .letter-overlay{position:fixed; inset:0; background:rgba(0,0,0,.85); display:grid; place-items:center; z-index:1000; backdrop-filter:blur(10px); opacity:0; pointer-events:none; transition:opacity .3s; padding:20px}
@@ -112,25 +110,13 @@
     .letter-content{background:var(--card); padding:30px; border-radius:20px; box-shadow: 0 20px 60px rgba(0,0,0,.5); width:100%; max-width:600px; max-height:90vh; overflow-y:auto; position:relative}
     .letter-image{width:100%; height:auto; border-radius:12px; background:#f0f0f0; min-height:400px; display:grid; place-items:center; color:var(--muted); font-style:italic}
     .close-letter{position:absolute; top:15px; right:20px; background:none; border:none; color:var(--muted); font-size:28px; cursor:pointer; width:auto; height:auto; display:grid; place-items:center; font-weight:300}
-    /* Confetti */
-    .confetti{position:fixed; width:10px; height:10px; pointer-events:none; z-index:500}
-    .confetti-1{background:#ff6b6b; border-radius:50%}
-    .confetti-2{background:#4ecdc4; transform:rotate(45deg)}
-    .confetti-3{background:#45b7d1; border-radius:50%}
-    .confetti-4{background:#96ceb4; transform:rotate(45deg)}
-    .confetti-5{background:#feca57; border-radius:50%}
-    .confetti-6{background:#ff9ff3; transform:rotate(45deg)}
-    
-    @keyframes confetti-fall{
-      0%{transform:translateY(-100vh) rotate(0deg); opacity:1}
-      100%{transform:translateY(100vh) rotate(720deg); opacity:0}
-    }
+    .close-letter:hover{color:var(--text)}
 
     @media (max-width: 400px) {
-      .cake-bottom{width:240px; height:50px}
-      .cake-middle{width:200px; height:40px}
-      .cake-top{width:160px; height:32px}
-      .candles-container{width:160px; top:100px}
+      .cake-bottom{width:240px; height:75px}
+      .cake-middle{width:200px; height:60px}
+      .cake-top{width:160px; height:48px}
+      .candles-container{width:160px; top:75px}
       .candle{width:10px; height:28px}
       .candles-top{padding:0 20px; margin-bottom:12px}
       .candles-middle{padding:0 5px; margin-bottom:12px}
@@ -159,8 +145,7 @@
     <div class="cake-container">
       <!-- Birthday Cake -->
       <div class="cake">
-        <div class="cake-layer cake-bottom">
-        </div>
+        <div class="cake-layer cake-bottom"></div>
         <div class="cake-layer cake-middle"></div>
         <div class="cake-layer cake-top">
           <div class="frosting-swirl swirl-1"></div>
@@ -230,7 +215,7 @@
       <div class="letter-content">
         <button class="close-letter" id="closeLetter">×</button>
         <div class="letter-image" id="letterImage">
-          Your letter image will appear here
+          <img src="letter.jpeg" alt="Letter" class="letter-image">
         </div>
       </div>
     </div>
@@ -297,61 +282,7 @@
     startBtn.textContent = on ? '🎤 Microphone Enabled' : '🎤 Enable Microphone to Blow Candles';
   }
 
-  function blowOut(){
-    if(quenched) return;
-    quenched = true;
-    
-    // Create confetti effect
-    createConfetti();
-    
-    // Hide all flames with staggered timing for a nice effect
-    flames.forEach((flame, index) => {
-      setTimeout(() => {
-        flame.style.opacity = 0;
-      }, index * 50); // 50ms delay between each candle
-    });
-    
-    // Show smoke from all candles
-    setTimeout(() => {
-      smokes.forEach((smoke, index) => {
-        setTimeout(() => {
-          smoke.classList.remove('on');
-          void smoke.offsetWidth; // force reflow
-          smoke.classList.add('on');
-        }, index * 40);
-      });
-    }, 200);
-    
-    armed = false;
-    setTimeout(() => armed = true, ARM_COOLDOWN_MS);
-  }
-
   function relight(){
-    const colors = ['confetti-1', 'confetti-2', 'confetti-3', 'confetti-4', 'confetti-5', 'confetti-6'];
-    const confettiCount = 50;
-    
-    for(let i = 0; i < confettiCount; i++){
-      const confetti = document.createElement('div');
-      confetti.className = `confetti ${colors[Math.floor(Math.random() * colors.length)]}`;
-      
-      // Random horizontal position
-      confetti.style.left = Math.random() * 100 + 'vw';
-      
-      // Random animation duration (2-4 seconds)
-      const duration = Math.random() * 2 + 2;
-      confetti.style.animation = `confetti-fall ${duration}s linear forwards`;
-      
-      // Random delay (0-1 second)
-      confetti.style.animationDelay = Math.random() * 1 + 's';
-      
-      document.body.appendChild(confetti);
-      
-      // Remove confetti after animation
-      setTimeout(() => {
-        if(confetti.parentNode) confetti.parentNode.removeChild(confetti);
-      }, (duration + 1) * 1000);
-    }
-  }
     quenched = false;
     
     // Hide all smoke and show all flames
