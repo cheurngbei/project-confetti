@@ -21,7 +21,7 @@
     header h1{font-size:clamp(18px, 4vw, 28px); margin:0; letter-spacing:.3px; background: linear-gradient(45deg, var(--accent), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;}
     header .subtitle{color:var(--muted); font-size:clamp(12px, 2.5vw, 16px); margin-top:4px}
 
-    .cake-container{position:relative; display:grid; place-items:center; padding:20px; min-height:400px}
+    .cake-container{position:relative; display:grid; place-items:center; padding:20px 20px 40px 20px; min-height:350px; margin-top:-20px}
 
     /* Cake Base */
     .cake{position:relative; z-index:1; display:flex; flex-direction:column-reverse; align-items:center}
@@ -97,7 +97,26 @@
     .welcome-content{text-align:center; background:var(--card); padding:40px; border-radius:24px; box-shadow: 0 20px 60px rgba(0,0,0,.5)}
     .welcome-title{font-size:clamp(24px, 6vw, 36px); margin:0 0 20px 0; background: linear-gradient(45deg, var(--accent), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text}
     .welcome-start{appearance:none; border:none; padding:16px 32px; border-radius:20px; background:linear-gradient(180deg, var(--accent-2), var(--accent)); color:#000; font-weight:700; font-size:18px; cursor:pointer; box-shadow:0 10px 30px rgba(255,159,28,.3); transition:transform .2s}
-    .welcome-start:hover{transform:translateY(-2px)}
+    /* Gift section */
+    .gifts-section{display:flex; justify-content:center; align-items:center; gap:60px; margin-top:30px; padding:0 20px}
+    
+    .gift-item{display:flex; flex-direction:column; align-items:center; cursor:pointer; transition:transform .2s}
+    .gift-item:hover{transform:translateY(-5px)}
+    
+    .letter{background:none; border:none; padding:0; cursor:pointer}
+    .letter-image-item{width:120px; height:120px; background-image: url('letterout.jpg'); background-size:cover; background-position:center; border-radius:12px}
+    
+    .gift-image-item{width:120px; height:120px; background-image: url('gift.png'); background-size:cover; background-position:center; border-radius:12px}
+    
+    .flowers-image-item{width:120px; height:120px; background-image: url('flowers.jpg'); background-size:cover; background-position:center; border-radius:12px}
+    
+    /* Letter overlay */
+    .letter-overlay{position:fixed; inset:0; background:rgba(0,0,0,.85); display:grid; place-items:center; z-index:1000; backdrop-filter:blur(10px); opacity:0; pointer-events:none; transition:opacity .3s}
+    .letter-overlay.show{opacity:1; pointer-events:auto}
+    .letter-content{background:var(--card); padding:20px; border-radius:20px; box-shadow: 0 20px 60px rgba(0,0,0,.5); max-width:90vw; max-height:80vh; overflow:auto; position:relative}
+    .letter-image{width:100%; max-width:500px; height:auto; border-radius:12px; background:#f0f0f0; min-height:300px; display:grid; place-items:center; color:var(--muted); font-style:italic}
+    .close-letter{position:absolute; top:10px; right:15px; background:none; border:none; color:var(--muted); font-size:24px; cursor:pointer; width:30px; height:30px; border-radius:50%; display:grid; place-items:center}
+    .close-letter:hover{background:rgba(255,255,255,.1)}
 
     @media (max-width: 400px) {
       .cake-bottom{width:240px; height:50px}
@@ -108,6 +127,8 @@
       .candles-top{padding:0 20px; margin-bottom:12px}
       .candles-middle{padding:0 5px; margin-bottom:12px}
       .candles-bottom{padding:0 2px}
+      .gifts-section{gap:40px; margin-top:20px}
+      .letter-image-item, .gift-image-item, .flowers-image-item{width:100px; height:100px}
     }
   </style>
 </head>
@@ -187,6 +208,33 @@
       </div>
     </div>
 
+    <!-- Gift Section -->
+    <div class="gifts-section">
+      <div class="gift-item">
+        <button class="letter" id="letterBtn">
+          <div class="letter-image-item"></div>
+        </button>
+      </div>
+      
+      <div class="gift-item">
+        <div class="gift-image-item"></div>
+      </div>
+      
+      <div class="gift-item">
+        <div class="flowers-image-item"></div>
+      </div>
+    </div>
+
+    <!-- Letter Overlay -->
+    <div class="letter-overlay" id="letterOverlay">
+      <div class="letter-content">
+        <button class="close-letter" id="closeLetter">×</button>
+        <div class="letter-image" id="letterImage">
+          Your letter image will appear here
+        </div>
+      </div>
+    </div>
+
     <div class="controls">
       <div class="status-row">
         <div id="status" class="dot" title="Microphone status"></div>
@@ -225,6 +273,11 @@
   const levelPill = document.getElementById('levelPill');
   const sens = document.getElementById('sens');
   const micLabel = document.getElementById('micLabel');
+  
+  // Letter elements
+  const letterBtn = document.getElementById('letterBtn');
+  const letterOverlay = document.getElementById('letterOverlay');
+  const closeLetter = document.getElementById('closeLetter');
 
   // Get all flames and smoke elements
   const flames = document.querySelectorAll('.flame');
@@ -406,6 +459,22 @@
   // Welcome overlay
   welcomeStart.addEventListener('click', () => {
     welcomeOverlay.style.display = 'none';
+  });
+  
+  // Letter functionality
+  letterBtn.addEventListener('click', () => {
+    letterOverlay.classList.add('show');
+  });
+  
+  closeLetter.addEventListener('click', () => {
+    letterOverlay.classList.remove('show');
+  });
+  
+  // Close letter when clicking outside
+  letterOverlay.addEventListener('click', (e) => {
+    if (e.target === letterOverlay) {
+      letterOverlay.classList.remove('show');
+    }
   });
 
   // Allow tapping the cake to relight
