@@ -288,7 +288,7 @@
     quenched = true;
     
     // Hide all flames with staggered timing for a nice effect
-    flames..reverse().forEach((flame, index) => {
+    flames.reverse().forEach((flame, index) => {
       setTimeout(() => {
         flame.style.opacity = 0;
       }, index * 50); // 50ms delay between each candle
